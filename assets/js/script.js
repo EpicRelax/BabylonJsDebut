@@ -1,8 +1,14 @@
+import { character } from "./lib/character.js";
+import { wall } from "./lib/wall.js";
+
 const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas, true);
 let createScene = function () {
     // This creates a basic Babylon Scene object (non-mesh)
     let scene = new BABYLON.Scene(engine);
+    globalThis.scene = scene;
+
+    scene.useRightHandedSystem = true;
 
     // This creates and positions a free camera (non-mesh)
     let camera = new BABYLON.ArcRotateCamera(
@@ -12,8 +18,8 @@ let createScene = function () {
     );
 
     // This targets the camera to scene origin
-   //camera.setTarget(BABYLON.Vector3.Zero());
-    
+    //camera.setTarget(BABYLON.Vector3.Zero());
+
 
     // This attaches the camera to the canvas
     camera.attachControl(canvas, true);
@@ -26,29 +32,22 @@ let createScene = function () {
     );
     light.intensity = 0.7;
 
+	const groundMat = new BABYLON.StandardMaterial("groundMat");
+	groundMat.diffuseTexture = new BABYLON.Texture("./assets/textures/groundTexture.jpg");
+
+	groundMat.diffuseTexture.uScale = 5.0;
+	groundMat.diffuseTexture.vScale = 5.0;
+
     // Built-in 'ground' shape.
     let ground = BABYLON.MeshBuilder.CreateGround(
         "ground",
         { width: 20, height: 20 },
         scene
     );
+	ground.material = groundMat;
 
-    let wall = BABYLON.MeshBuilder.CreateBox(
-        "wall",
-        {width: 20, height: 3, depth : 1},
-        scene
-    );
-    wall.position.y = 1.5;
-    wall.position.z = 10;
-
-    let wall2 = BABYLON.MeshBuilder.CreateBox(
-        "wall",
-        {width: 20, height: 3, depth : 1},
-        scene
-    );
-    wall2.position.y = 1.5;
-    wall2.position.x = 10;
-    wall2.rotation.y = Math.PI/45 ;
+	wall();
+    character();
 
     return scene;
 };
