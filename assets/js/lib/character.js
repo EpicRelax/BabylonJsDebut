@@ -15,17 +15,20 @@ function character () {
         globalThis.bonnie = bonnie;
         bonnie.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
         bonnie.position.y = 0;
-        camera.target = box;
         shadowGenerator.addShadowCaster(bonnie, true);
         bonnie.receiveShadows = true;
-        bonnie.checkCollisions = true;
-        bonnie.ellipsoid.set = (10, 10, 10);
+        camera.target = box;
         const idleAnim = scene.getAnimationGroupByName("idle");
         globalThis.idleAnim = idleAnim;
         const runAnim = scene.getAnimationGroupByName("running");
         globalThis.runAnim = runAnim;
         idleAnim.start(true, 1.0, idleAnim.from, idleAnim.to, false);
-        
+        let light = new BABYLON.PointLight("light", new BABYLON.Vector3(0,30,0), scene);
+        light.position = box.position;
+        globalThis.light = light;
+        light.intensity = 1;
+        light.range = 10;
+
         characterMov();
      });
 };
@@ -91,9 +94,9 @@ function characterMov () {
         }
         bonnie.rotation.y += rotation.y;
         box.rotation.y += rotation.y;
-        box.position.y = 2;
         bonnie.position = new BABYLON.Vector3(box.position.x, 0, box.position.z);
-
+        box.position.y = 2;
+        light.position = new BABYLON.Vector3(box.position.x, 3.5, box.position.z);
     })
 };
 
