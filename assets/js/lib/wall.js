@@ -1,46 +1,50 @@
 function wall () {
+    let wall = BABYLON.MeshBuilder.CreateBox(
+        "wall",
+        { width: 72, height: 5, depth: 1 },
+        scene
+    );
     const wallMat = new BABYLON.StandardMaterial("wallMat");
 	wallMat.diffuseTexture = new BABYLON.Texture("./assets/textures/wallTexture.jpg");
 
 	wallMat.diffuseTexture.uScale = 10;
-    
-    let wall = BABYLON.MeshBuilder.CreateBox(
-        "wall",
-        { width: 25, height: 3, depth: 1 },
-        scene
-    );
-    wall.position.y = 1.5;
-    wall.position.z = 10;
-	wall.material = wallMat;
+    wallMat.specularColor = new BABYLON.Color3(0, 0, 0);
+    wall.material = wallMat;
+    wall.position = new BABYLON.Vector3(0, 2, 35);
+    wall.checkCollisions = true;
+    wall.ellipsoid.set = (25, 3, 1);
+    shadowGenerator.addShadowCaster(wall, true);
+    wall.receiveShadows = true;
 
-    let wall2 = BABYLON.MeshBuilder.CreateBox(
-        "wall",
-        { width: 25, height: 3, depth: 1 },
-        scene
-    );
-    wall2.position.y = 1.5;
-    wall2.position.x = 10;
-    wall2.rotation.y = (20.4);
-	wall2.material = wallMat;
+    let posWall = [
+        new BABYLON.Vector3(0, 2, -35),
+        new BABYLON.Vector3(-35, 2, 0),
+        new BABYLON.Vector3(35, 2, 0)
+    ]
 
-    let wall3 = BABYLON.MeshBuilder.CreateBox(
-        "wall",
-        { width: 25, height: 3, depth: 1 },
-        scene
-    );
-    wall3.position.y = 1.5;
-    wall3.position.x = -10;
-    wall3.rotation.y = (20.4);
-	wall3.material = wallMat;
+    let rotWall = [
+        0,
+        20.4,
+        -20.4
+    ]
 
-    let wall4 = BABYLON.MeshBuilder.CreateBox(
-        "wall",
-        { width: 25, height: 3, depth: 1 },
-        scene
-    );
-    wall4.position.y = 1.5;
-    wall4.position.z = -10;
-	wall4.material = wallMat;
+    let i = 0;
+    while ( i < posWall.length){
+        let wallInstance = wall.createInstance("wall" + i);
+        wallInstance.position = posWall[i];
+        if (i>=1) {
+            wallInstance.position = posWall[i];
+            wallInstance.rotation.y = rotWall[i];
+            wallInstance.checkCollisions = true;
+            wallInstance.ellipsoid.set = (25, 3, 1);
+            i++
+        }else {
+            wallInstance.position = posWall[i];
+            wallInstance.checkCollisions = true;
+            wallInstance.ellipsoid.set = (25, 3, 1);
+            i ++
+        };
+    };    
 }
 
 export { wall };

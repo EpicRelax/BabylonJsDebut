@@ -1,53 +1,69 @@
 import { character } from "./lib/character.js";
 import { wall } from "./lib/wall.js";
+import { house } from "./lib/house.Js";
+import { tree } from "./lib/tree.js";
+import { walkplay,walkstop } from "./lib/walkSound.js";
 
 const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas, true);
 let createScene = function () {
     // This creates a basic Babylon Scene object (non-mesh)
     let scene = new BABYLON.Scene(engine);
+    scene.collisionsEnabled = true;
     globalThis.scene = scene;
-
-    scene.useRightHandedSystem = true;
-
-    // This creates and positions a free camera (non-mesh)
-    let camera = new BABYLON.ArcRotateCamera(
-        "camera1",
-        -Math.PI / 2, Math.PI / 2.5, 10, new BABYLON.Vector3(0, 0, 0),
-        scene
-    );
-
-    // This targets the camera to scene origin
-    //camera.setTarget(BABYLON.Vector3.Zero());
-
-
-    // This attaches the camera to the canvas
+    // Parameters : name, position, scene
+    let camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 7, new BABYLON.Vector3(0, 0, 0), scene);
+    camera.inputs.remove(camera.inputs.attached.mousewheel);
+    globalThis.camera = camera;
+    
     camera.attachControl(canvas, true);
+    scene.useRightHandedSystem = true;
+    camera.checkCollision = true
+    
+    canvas.addEventListener("click", event => {
+        canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
+        if(canvas.requestPointerLock) {
+        canvas.requestPointerLock();
+        }
+        });
 
-    // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-    let light = new BABYLON.HemisphericLight(
-        "light",
-        new BABYLON.Vector3(0, 1, 0),
-        scene
-    );
-    light.intensity = 0.7;
+    let light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(10,-20,-30), scene);
+    light.intensity = 2;
+
+    let light2 = new BABYLON.HemisphericLight("light2", new BABYLON.Vector3(0, 1, 0), scene);
+    light2.intensity = 0.3;
+
+    let shadowGenerator = new BABYLON.ShadowGenerator(1024, light);
+    shadowGenerator.bias = 0.001;
+	shadowGenerator.normalBias = 0.02;
+	light.shadowMaxZ = 100;
+	light.shadowMinZ = 0;
+	shadowGenerator.useContactHardeningShadow = true;
+	shadowGenerator.contactHardeningLightSizeUVRatio = 0.05;
+	shadowGenerator.setDarkness(0.1);
+    globalThis.shadowGenerator = shadowGenerator;
 
 	const groundMat = new BABYLON.StandardMaterial("groundMat");
-	groundMat.diffuseTexture = new BABYLON.Texture("./assets/textures/groundTexture.jpg");
+	groundMat.diffuseTexture = new BABYLON.Texture("./assets/textures/groundTexture.png");
 
 	groundMat.diffuseTexture.uScale = 5.0;
 	groundMat.diffuseTexture.vScale = 5.0;
+    groundMat.specularColor = new BABYLON.Color3(0, 0, 0);
 
     // Built-in 'ground' shape.
     let ground = BABYLON.MeshBuilder.CreateGround(
         "ground",
-        { width: 20, height: 20 },
+        { width: 70, height: 70 },
         scene
     );
-	ground.material = groundMat;
+
+	ground.material = groundMat;7
+
+    ground.receiveShadows = true;
 
 	wall();
     character();
+    tree();
 
     return scene;
 };
